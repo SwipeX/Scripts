@@ -303,8 +303,8 @@ MessageListener {
 		        g1.drawImage(img1, 0, 338, null);
 		        g1.setFont(font2);
 		        g1.setColor(color2);
-		        g1.drawString("Profit: "+(hidep * getHides()) + " - "+ (hidep * PerHour(getHides()))+ " / H", 100, 396) ;
-		        g1.drawString("Exp:"+ T.addAll()+" xp - "+T.allPerHour()+ " / H" , 100, 447);
+		        g1.drawString("Profit: "+(hidep * getHides()+ bonep*getBones())+ " - "+ (hidep * PerHour(getHides()) + bonep*PerHour(getBones()))+ " / H", 100, 396) ;
+		        g1.drawString("Exp: "+ T.addAll()+" xp - "+T.allPerHour()+ " / H" , 100, 447);
 
 	}
 
@@ -319,15 +319,15 @@ MessageListener {
 					if (!d.isInCombat()) {
 						if (d.isOnScreen()) {
 							d.interact("Attack");
-							ctx.env.sleep(300);
+							env.sleep(1300);
 						} else {
-							ctx.camera.turnTo(d);
+							camera.turnTo(d);
 						}
 					} else {
-						if (ctx.env.random(0, 6) == 3) {
-							ctx.camera.setAngle(ctx.env.random(1, 359));
+						if (env.random(0, 100) == 3) {
+							camera.setAngle(random(1, 359));
 						}
-						ctx.env.sleep(2000);
+						sleep(2000);
 					}
 				}
 			}
@@ -341,7 +341,7 @@ MessageListener {
 	public int loop() {
 		//Paint
 		status = getState().toString().toLowerCase();
-
+T.updateSkills();
 		switch (getState()) {
 		/*
 		 * Green Drag Loop
@@ -407,7 +407,7 @@ MessageListener {
 			break;
 		case W_DITCH:
 			RSTile a = getMyPlayer().getLocation();
-			mouse.click(ctx.calc.tileToScreen(W_DITCHLOC), true);
+			mouse.click(calc.tileToScreen(W_DITCHLOC), true);
 			sleep(random(1700, 2000));
 			if (getMyPlayer().getLocation().equals(a)) {
 				log("ditch error! fixing!");
@@ -419,9 +419,9 @@ MessageListener {
 			break;
 		case TO_WDRAGS:
 			RSTilePath aPath = walking.newTilePath(W_DRAGPATH);
-			while(calc.distanceTo(W_DRAGLOC) < 10){
+			while(calc.distanceTo(W_DRAGLOC) > 10){
 				aPath.traverse();
-				ctx.env.sleep(500);
+				sleep(500);
 			}
 			break;
 		case TO_TUNNEL_DRAG:
@@ -451,7 +451,7 @@ MessageListener {
 			if (players.getMyPlayer().getHPPercent() < 41) {
 				inventory.getItem(food).interact("Eat");
 			}
-			inventory.dropAllExcept(HIDE, BONES, D_WEED, 8007, food);
+			inventory.dropAllExcept(HIDE, BONES, D_WEED, 8007,FTAB, food);
 			if (random(1, 30) == 3) {
 				camera.setAngle(camera.getAngle() + random(3, 90));
 			}
@@ -460,7 +460,7 @@ MessageListener {
 		/*
 		 * End Green Drag Loop
 		 */
-		return random(100, 300);
+		return random(100, 200);
 	}
 
 	private int getTabForLoc() {
