@@ -20,12 +20,13 @@ import org.rsbot.script.Script;
 import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.methods.Skills;
+import org.rsbot.script.wrappers.RSGroundItem;
 import org.rsbot.script.wrappers.RSNPC;
 import org.rsbot.script.wrappers.RSTile;
 import org.rsbot.script.wrappers.RSTilePath;
 import org.rsbot.script.wrappers.RSWeb;
 
-@ScriptManifest(authors = { "Swipe" }, keywords = "Combat, loot", name = "ActiveDrags", version = 1.02, description = "AIO Dragon Killer")
+@ScriptManifest(authors = { "Swipe" }, keywords = "Combat, loot", name = "ActiveDrags", version = 1.05, description = "AIO Dragon Killer")
 public class ActiveDrags extends Script implements PaintListener,
 MessageListener {
 	final static int HIDE = 1753;
@@ -435,7 +436,8 @@ T.updateSkills();
 			if (inventory.isFull() && inventory.contains(food)) {
 				inventory.getItem(food).interact("Eat");
 			}
-			groundItems.getNearest(HIDE, BONES, D_WEED).interact("take");
+			RSGroundItem g =groundItems.getNearest(HIDE, BONES, D_WEED);
+			g.interact("Take");
 			sleep(random(500, 1000));
 			break;
 
@@ -448,7 +450,7 @@ T.updateSkills();
 			sleep(4000);
 			break;
 		case WAIT:
-			if (players.getMyPlayer().getHPPercent() < 41) {
+			if (players.getMyPlayer().getHPPercent() < 51 && inventory.contains(food)) {
 				inventory.getItem(food).interact("Eat");
 			}
 			inventory.dropAllExcept(HIDE, BONES, D_WEED, 8007,FTAB, food);
