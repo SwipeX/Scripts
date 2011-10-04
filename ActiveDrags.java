@@ -196,14 +196,14 @@ MessageListener {
 			return GState.TO_WBANK;
 		}
 		if (nearArea(E_BANKL, 10)) {
-			if (inventory.contains(BONES)&& !inventory.contains(getTabForLoc())) {
+			if (inventory.contains(BONES) || !inventory.contains(getTabForLoc())) {
 				return GState.BANK;
 			} else {
 				return GState.TO_EDITCH;
 			}
 		}
-		if (nearArea(W_BANKLOC, 10)) {
-			if (inventory.contains(BONES) && !inventory.contains(getTabForLoc())) {
+		if (nearArea(W_BANKLOC, 6)) {
+			if (inventory.contains(BONES)|| !inventory.contains(getTabForLoc())) {
 				return GState.BANK;
 			} else {
 				return GState.TO_WDITCH;
@@ -396,9 +396,9 @@ MessageListener {
 				"Exp: " + T.addAll() + " xp - " + T.allPerHour() + " / H", 100,
 				447);
 		g.setColor(color2);
-		g.fillRoundRect(130, 390, 65, 30, 5, 5);
+		g.fillRoundRect(245, 410, 95, 20, 5, 5);
 		g.setColor(new Color(215,196,157,200));
-		g.drawString("Status: "+status,140,400);
+		g.drawString(status,255,425);
 	}
 
 	public void attackNearestDragon() {
