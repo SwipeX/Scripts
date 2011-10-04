@@ -20,6 +20,7 @@ import org.rsbot.script.Script;
 import org.rsbot.script.ScriptManifest;
 import org.rsbot.script.methods.MethodContext;
 import org.rsbot.script.methods.Skills;
+import org.rsbot.script.util.Timer;
 import org.rsbot.script.wrappers.RSCharacter;
 import org.rsbot.script.wrappers.RSGroundItem;
 import org.rsbot.script.wrappers.RSNPC;
@@ -27,7 +28,7 @@ import org.rsbot.script.wrappers.RSTile;
 import org.rsbot.script.wrappers.RSTilePath;
 import org.rsbot.script.wrappers.RSWeb;
 
-@ScriptManifest(authors = { "Swipe" }, keywords = "Combat, loot", name = "ActiveDrags", version = 1.08, description = "AIO Dragon Killer")
+@ScriptManifest(authors = { "Swipe" }, keywords = "Combat, loot", name = "ActiveDrags", version = 1.09, description = "AIO Dragon Killer")
 public class ActiveDrags extends Script implements PaintListener,
 MessageListener {
 	final static int HIDE = 1753;
@@ -177,7 +178,7 @@ MessageListener {
 //		if(getMyPlayer().getInteracting()!=null && getMyPlayer().getInteracting().isInteractingWithLocalPlayer()){
 //			return GState.PLAYER_COMBAT;
 //		}
-		if (nearArea(E_DRAGL, 15) || nearArea(W_DRAGLOC, 15)
+		if (nearArea(E_DRAGL, 22) || nearArea(W_DRAGLOC, 15)
 				|| nearArea(TUNNEL_DRAGS, 20) && inventory.getCount(food) > 0) {
 					
 			if (groundItems.getNearest(HIDE, BONES, D_WEED) != null) {
@@ -189,10 +190,10 @@ MessageListener {
 			return GState.FIGHT;
 		}
 
-		if (nearArea(VARROCK, 8)) {
+		if (nearArea(VARROCK, 7)) {
 			return GState.TO_EBANK;
 		}
-		if (nearArea(W_FALALOC, 8)) {
+		if (nearArea(W_FALALOC, 5)) {
 			return GState.TO_WBANK;
 		}
 		if (nearArea(E_BANKL, 10)) {
@@ -380,6 +381,8 @@ MessageListener {
 	private final RenderingHints rh = new RenderingHints(
 			RenderingHints.KEY_TEXT_ANTIALIASING,
 			RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	private boolean useGlory;
+	private int[] glorys = {4,3,2,1};
 
 	@Override
 	public void onRepaint(Graphics g) {
@@ -394,11 +397,11 @@ MessageListener {
 				+ " / H", 100, 396);
 		g.drawString(
 				"Exp: " + T.addAll() + " xp - " + T.allPerHour() + " / H", 100,
-				447);
+				430);
 		g.setColor(color2);
-		g.fillRoundRect(245, 410, 95, 20, 5, 5);
+		g.fillRoundRect(65, 445, 265, 20, 5, 5);
 		g.setColor(new Color(215,196,157,200));
-		g.drawString(status,255,425);
+		g.drawString("Time Running: "+ Timer.format(System.currentTimeMillis()-startTime)+"   -   "+status,70,460);
 	}
 
 	public void attackNearestDragon() {
@@ -420,7 +423,7 @@ MessageListener {
 						}
 					} else {
 						if (env.random(0, 100) == 3) {
-							camera.setAngle(random(1, 359));
+							camera.setAngle(random(-359, 359));
 						}
 						sleep(2000);
 					}
@@ -455,13 +458,15 @@ void useTab(){
 			case BANK:
 				if (bank.isOpen()) {
 					bank.depositAll();
-					if (!(inventory.getCount(food) != amount)) {
-						bank.withdraw(food, amount - inventory.getCount(food));
+					if(usingSumm){
+						bank.depositAllFamiliar();
+//						if(!inventory.contains(pouchId)){
+//							bank.withdraw(pouchId,1);
+//						}
 					}
+						bank.withdraw(food, amount );
 					sleep(500);
-					if (!inventory.contains(getTabForLoc())) {
 						bank.withdraw(getTabForLoc(), 1);
-					}
 					bank.close();
 				} else {
 					bank.open();
@@ -499,7 +504,7 @@ void useTab(){
 			case CLICK_PORTAL:
 				while (!nearArea(DRAG_PORTAL, 2)) {
 					objects.getNearest(PORTAL).getModel().doClick(true);
-					sleep(500);
+					sleep(1500);
 				}
 				break;
 			case E_DITCH:
@@ -536,7 +541,8 @@ void useTab(){
 				break;
 			case FIGHT:
 				attackNearestDragon();
-
+				if(getMyPlayer().isMoving())
+				sleep(1000);				
 				break;
 			case LOOT:
 				if (inventory.isFull() && inventory.contains(food)) {
@@ -547,7 +553,7 @@ void useTab(){
 				if(takeItem(g)==-1){
 					log("loot error, attempting to relocate.");
 				}
-				sleep(random(500, 1000));
+				sleep(random(800, 1400));
 				}
 				break;
 			case PLAYER_COMBAT:
@@ -555,16 +561,28 @@ void useTab(){
 				useTab();
 				break;
 			case TELE:
+				if(!useGlory){
 				useTab();
+				} else{
+					for(int i=0;i<4;i++){
+					if(equipment.containsOneOf(glorys[i])){
+						equipment.getItem(glorys[i]).interact("rub");
+						sleep(1000);
+						if(interfaces.getAllContaining("edgeville").length >0){
+							mouse.click(interfaces.getAllContaining("edgeville")[0].getLocation(),true);
+						}
+					} else{
+						log("using glory, and no charged glory found...shit...");
+					}
+					}}
 				break;
 			case WAIT:
 				if (players.getMyPlayer().getHPPercent() < 51
 						&& inventory.contains(food)) {
 					inventory.getItem(food).interact("Eat");
 				}
-				inventory.dropAllExcept(HIDE, BONES, D_WEED, VTAB, FTAB, food);
-				if (random(1, 30) == 3) {
-					camera.setAngle(camera.getAngle() + random(3, 90));
+				if (random(1, 130) == 3) {
+					camera.setAngle(camera.getAngle() + random(-90, 90));
 				}
 				break;
 			}
@@ -621,7 +639,6 @@ void useTab(){
 
 	public class MyGUI extends javax.swing.JFrame {
 
-		private boolean useGlory;
 		/** Creates new form MyGUI */
 		public MyGUI() {
 			initComponents();
