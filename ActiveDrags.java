@@ -340,6 +340,9 @@ MessageListener {
 
 	@Override
 	public int loop() {
+		try {
+			
+	
 		//Paint
 		status = getState().toString().toLowerCase();
 T.updateSkills();
@@ -446,7 +449,11 @@ T.updateSkills();
 				walking.walkTo(new RSTile(getMyPlayer().getLocation().getX(),
 						getMyPlayer().getLocation().getY() - 15));
 			}
+			if(inventory.contains(getTabForLoc())){
 			inventory.getItem(getTabForLoc()).interact("break");
+			} else{
+				log("No tab in Inventory");
+			}
 			sleep(4000);
 			break;
 		case WAIT:
@@ -459,6 +466,9 @@ T.updateSkills();
 			}
 			break;
 		}
+		} catch (NullPointerException e){
+			log("Error Skipped: "+e.getLocalizedMessage());
+		}
 		/*
 		 * End Green Drag Loop
 		 */
@@ -470,7 +480,10 @@ T.updateSkills();
 			return 8007;
 		}
 		if (SETLOC == 1) {
-			return 8009;
+			return FTAB;
+		}
+		if (SETLOC == 2) {
+			return 8007;
 		}
 		return -1;
 	}
