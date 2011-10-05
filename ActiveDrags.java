@@ -28,7 +28,7 @@ import org.rsbot.script.wrappers.RSTile;
 import org.rsbot.script.wrappers.RSTilePath;
 import org.rsbot.script.wrappers.RSWeb;
 
-@ScriptManifest(authors = { "Swipe" }, keywords = "Combat, loot", name = "ActiveDrags", version = 1.09, description = "AIO Dragon Killer")
+@ScriptManifest(authors = { "Swipe" }, keywords = "Combat, loot", name = "ActiveDrags", version = 1.10, description = "AIO Dragon Killer")
 public class ActiveDrags extends Script implements PaintListener,
 MessageListener {
 	final static int HIDE = 1753;
@@ -189,12 +189,8 @@ MessageListener {
 			}
 			return GState.FIGHT;
 		}
-
 		if (nearArea(VARROCK, 7)) {
 			return GState.TO_EBANK;
-		}
-		if (nearArea(W_FALALOC, 5)) {
-			return GState.TO_WBANK;
 		}
 		if (nearArea(E_BANKL, 10)) {
 			if (inventory.contains(BONES) || !inventory.contains(getTabForLoc())) {
@@ -203,11 +199,28 @@ MessageListener {
 				return GState.TO_EDITCH;
 			}
 		}
-		if (nearArea(W_BANKLOC, 6)) {
-			if (inventory.contains(BONES)|| !inventory.contains(getTabForLoc())) {
-				return GState.BANK;
+
+		if (nearArea(E_DITCHL, 5)) {
+			if (getMyPlayer().getLocation().getY() < E_DITCHL.getY()) {
+				return GState.E_DITCH;
 			} else {
-				return GState.TO_WDITCH;
+				if (SETLOC == 2) {
+					return GState.TO_RIFT;
+				}
+				return GState.TO_EDRAGS;
+			}
+		}
+
+		if (nearArea(W_FALALOC, 5)) {
+			return GState.TO_WBANK;
+		}
+	
+		if (nearArea(W_BANKLOC, 10)) {
+			if (inventory.contains(BONES)|| !inventory.containsOneOf(getTabForLoc())) {
+				return GState.BANK;
+			} 
+			if(inventory.getCount(food)==amount && inventory.containsOneOf(getTabForLoc())){
+				return GState.TO_WDITCH;				
 			}
 		}
 		if (nearArea(TUNNEL_LOC, 7)) {
@@ -225,21 +238,12 @@ MessageListener {
 		if (nearArea(DRAG_PORTAL, 3)) {
 			return GState.TO_TUNNEL_DRAG;
 		}
-		if (inventory.getCount(food) < 1 && combat.getWildernessLevel()>0
-				|| (inventory.getCount(HIDE) + inventory.getCount(BONES)) > 26) {
+		if(combat.getWildernessLevel()>0){
+		if (inventory.getCount(food) < 1 || (inventory.getCount(HIDE) + inventory.getCount(BONES)) > 26) {
 			return GState.TELE;
 		}
-
-		if (nearArea(E_DITCHL, 5)) {
-			if (getMyPlayer().getLocation().getY() < E_DITCHL.getY()) {
-				return GState.E_DITCH;
-			} else {
-				if (SETLOC == 2) {
-					return GState.TO_RIFT;
-				}
-				return GState.TO_EDRAGS;
-			}
 		}
+
 		if (nearArea(W_DITCHLOC, 5)) {
 			if (getMyPlayer().getLocation().getY() < W_DITCHLOC.getY()) {
 				return GState.W_DITCH;
@@ -334,7 +338,7 @@ MessageListener {
 	}
 //Circle around area with radius n
 	private boolean nearArea(RSTile t, int n) {
-		return calc.distanceTo(t) <= n;
+		return calc.distanceBetween(getMyPlayer().getLocation(), t) <= n;
 	}
 
 	/**
@@ -455,6 +459,11 @@ void useTab(){
 			/*
 			 * Green Drag Loop
 			 */
+			case TO_EBANK:
+				if(SETLOC!=1){
+				walkTo(E_BANKL);
+				}
+				break;
 			case BANK:
 				if (bank.isOpen()) {
 					bank.depositAll();
@@ -471,12 +480,10 @@ void useTab(){
 				} else {
 					bank.open();
 				}
-			case TO_EBANK:
-				walkTo(E_BANKL);
-				break;
 			case TO_WBANK:
 				walkTo(W_BANKLOC);
 				break;
+		
 			case TO_EDITCH:
 				walkTo(E_DITCHL);
 				break;
@@ -3231,7 +3238,7 @@ void useTab(){
 			}
 			usingCannon =jCheckBox1.isSelected();
 			useGlory = jCheckBox2.isSelected();
-			usingSumm = (jComboBox8.getSelectedItem().toString().equals("None"));
+			usingSumm = !(jComboBox8.getSelectedItem().toString().equals("None"));
 			if(usingSumm){
 				summ = jComboBox8.getSelectedIndex()+1; 
 			}
